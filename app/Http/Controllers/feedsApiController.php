@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\cachedFeedData;
+use App\error;
 
 class feedsApiController extends Controller
 {
@@ -15,10 +16,19 @@ class feedsApiController extends Controller
             where('deleted_at', null)->first();
 
         if(!empty($feed)) {
-            return response()->json([
+            $error = new error;
+
+            $message = [
                 'operation' => 'failed',
-                'message' => 'record already exists with provided URL']
-            );
+                'message' => 'record already exists with provided URL',
+                'data' => json_encode(['url' => $feedUrl]),
+            ];
+
+            $error->response_message = $message['message'];
+            $error->data = $message['data'];
+            $error->save();
+
+            return response()->json($message);
         }
 
         $feed = new cachedFeedData;
