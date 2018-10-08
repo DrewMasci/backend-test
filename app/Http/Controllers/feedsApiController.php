@@ -63,7 +63,7 @@ class feedsApiController extends Controller
         $feeds = cachedFeedData::allArray($ids);
 
         if(empty($feeds)) {
-            $response = response()->json(['operation' => 'failed', 'message' => 'no feeds found'], 500);
+            $response = response()->json(['operation' => 'failed', 'message' => 'no feeds found'], 204);
             return $response;
         }
 
