@@ -51,7 +51,12 @@ class feedsApiController extends Controller
     public function mergeFeeds(Request $request)
     {
         $ids = [];
+
         if(!empty($request->input('feed-ids'))) {
+            if(preg_match('/[\'^£$%&*()}{@#~?><>|=_+¬-]/', $request->input('feed-ids'))) {
+                throw new \Exception('feed-ids contains special characters other than ,');
+            }
+
             $ids = explode(',', $request->input('feed-ids'));
         }
 
