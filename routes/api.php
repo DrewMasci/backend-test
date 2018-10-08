@@ -18,4 +18,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('add-feed', 'feedsApiController@addFeed');
+Route::any('add-feed', 'feedsApiController@addFeed');
+Route::any('merge-feeds', 'feedsApiController@mergeFeeds');
+Route::any('list-feeds', 'feedsApiController@listFeeds');
