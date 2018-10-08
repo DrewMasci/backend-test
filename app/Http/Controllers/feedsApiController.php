@@ -8,11 +8,6 @@ use Illuminate\Http\Request;
 
 class feedsApiController extends Controller
 {
-    private $cities = [
-        'London' => ['London'],
-        'New_York' => ['New York', 'NY'],
-    ];
-
     public function addFeed(Request $request)
     {
         $feedUrl = $request->input('feed-url');

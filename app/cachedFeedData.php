@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class cachedFeedData extends Model
 {
+    private static $cities = [
+        'London' => ['London'],
+        'New_York' => ['New York', 'NY'],
+    ];
+
     public static function allArray($ids = null)
     {
         if($ids == null) {
@@ -17,7 +22,7 @@ class cachedFeedData extends Model
         $temp = [];
 
         foreach($feeds as $feed) {
-            $r[] = $feed->attributes;
+            $temp[] = $feed->attributes;
         }
 
         $feeds = $temp;
@@ -59,13 +64,13 @@ class cachedFeedData extends Model
                 $meta['response']['version'][] = $raw_meta['response']['version'];
             }
 
-            foreach($this->cities as $key => $city) {
+            foreach(self::$cities as $key => $city) {
                 foreach($city as $label) {
                     if(stripos($temp['data']['location']['display_name'], $label) !== false) {
                         if(isset($output[$key])) {
                             $locations = array_merge(array_values($output[$key]['locations']), array_values($temp['data']['locations']));
 
-                            $output[$key] = $this->array_glue($output[$key], $temp['data'], true);
+                            $output[$key] = self::array_glue($output[$key], $temp['data']);
                             $output[$key]['locations'] = $locations;
                         } else {
                             $output[$key] = $temp['data'];
@@ -80,18 +85,17 @@ class cachedFeedData extends Model
         return ['meta' => $meta, 'data' => $output,];
     }
 
-    private function array_glue($destination, $addition, $inDepth = false) {
+    private static function array_glue($destination, $addition) {
         foreach($destination as $key => $value) {
-            //dd($addition);
-            if(!isset($addition[$key])) {
+            if(!isset($addition[$key]) || is_numeric($key)) {
                 continue;
             }
 
             if(is_array($value) && !is_array($addition[$key])
                 && !in_array($addition[$key], $destination[$key])) {
                 $destination[$key][] = $addition[$key];
-            } else if(is_array($value) && $inDepth) {
-                $destination[$key] = $this->array_glue($destination[$key], $addition[$key]);
+            } else if(is_array($value)) {
+                $destination[$key] = self::array_glue($value, $addition[$key]);
             } else if ($value != $addition[$key]) {
                 $destination[$key] = [$value, $addition[$key]];
             }
