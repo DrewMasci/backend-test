@@ -63,13 +63,42 @@ class feedsApiController extends Controller
         $feeds = cachedFeedData::allArray($ids);
 
         if(empty($feeds)) {
-            $response = response()->json(['operation' => 'failed', 'message' => 'no feeds found'], 204);
+            $response = response()->json(['meta' => ['code' => 204, 'status' => 'failed', 'message' => 'no feeds found'], 'data' => '',], 204);
             return $response;
         }
 
+        $meta = [
+            'code' => 200,
+            'status' => 'success',
+            'provider' => [
+                'service' => [],
+                'version' => [],
+            ],
+            'response' => [
+                'format' => [],
+                'version' => [],
+            ]
+        ];
         $output = [];
         foreach($feeds as $index => $feed) {
             $temp = json_decode($feed['raw_json'], true);
+            $raw_meta = $temp['meta'];
+
+            if(!in_array($raw_meta['provider']['service'], $meta['provider']['service'])) {
+                $meta['provider']['service'][] = $raw_meta['provider']['service'];
+            }
+
+            if(!in_array($raw_meta['provider']['version'], $meta['provider']['version'])) {
+                $meta['provider']['version'][] = $raw_meta['provider']['version'];
+            }
+
+            if(!in_array($raw_meta['response']['format'], $meta['response']['format'])) {
+                $meta['response']['format'][] = $raw_meta['response']['format'];
+            }
+
+            if(!in_array($raw_meta['response']['version'], $meta['response']['version'])) {
+                $meta['response']['version'][] = $raw_meta['response']['version'];
+            }
 
             foreach($this->cities as $key => $city) {
                 foreach($city as $label) {
@@ -89,7 +118,7 @@ class feedsApiController extends Controller
             }
         }
 
-        return response()->json($output);
+        return response()->json(['meta' => $meta, 'data' => $output,]);
     }
 
     private function array_glue($destination, $addition, $inDepth = false) {
