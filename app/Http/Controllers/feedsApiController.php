@@ -62,6 +62,11 @@ class feedsApiController extends Controller
 
         $feeds = cachedFeedData::allArray($ids);
 
+        if(empty($feeds)) {
+            $response = response()->json(['operation' => 'failed', 'message' => 'no feeds found'], 500);
+            return $response;
+        }
+
         $output = [];
         foreach($feeds as $index => $feed) {
             $temp = json_decode($feed['raw_json'], true);
@@ -92,7 +97,6 @@ class feedsApiController extends Controller
             //dd($addition);
             if(!isset($addition[$key])) {
                 continue;
-                //throw new \Exception("$key is not a valid field in the additions parameter");
             }
 
             if(is_array($value) && !is_array($addition[$key])
