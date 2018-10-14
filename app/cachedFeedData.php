@@ -11,6 +11,17 @@ class cachedFeedData extends Model
         'New_York' => ['New York', 'NY'],
     ];
 
+    /**
+     * returns a merged array of all the cached records provided from the
+     * database. If the there are no ids provided with the call, the function
+     * gets all the records held by in the database.
+     *
+     * Upon getting the records it proceeds to merge all the data and returns
+     * an array.
+     *
+     * @param  array $ids
+     * @return array
+     */
     public static function allArray($ids = null)
     {
         if($ids == null) {
@@ -85,6 +96,20 @@ class cachedFeedData extends Model
         return ['meta' => $meta, 'data' => $output,];
     }
 
+    /**
+     * arrayGlue is a static function that is called recursively to merge all
+     * the data points in the $destination and $addition arrays to be returned
+     * as an array to the calling point. The conditions of how the data is
+     * merged is dependant on that data types at the indicies for $destination
+     * and $addition.
+     *
+     * If a index exists in $destination but not in $addition or if the index
+     * is a numerical value the process is skipped at that specific index.
+     *
+     * @param  array $destination
+     * @param  array $addition
+     * @return array
+     */
     public static function arrayGlue($destination, $addition) {
         foreach($destination as $key => $value) {
             if(!isset($addition[$key]) || is_numeric($key)) {
