@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class cachedFeedData extends Model
 {
+    /**
+     * Used to determine the different cities within the feeds data, combining
+     * them where able dependant on the values held in the cities individual
+     * arrays.
+     *
+     * @var array
+     */
     private static $cities = [
         'London' => ['London'],
         'New_York' => ['New York', 'NY'],
@@ -30,13 +37,9 @@ class cachedFeedData extends Model
             $feeds = cachedFeedData::where('deleted_at', null)->whereIn('id', $ids)->get();
         }
 
-        $temp = [];
-
-        foreach($feeds as $feed) {
-            $temp[] = $feed->attributes;
+        foreach($feeds as $index => $feed) {
+            $feeds[$index] = $feed->attributes;
         }
-
-        $feeds = $temp;
 
         $output = [];
 
