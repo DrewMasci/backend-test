@@ -52,23 +52,7 @@ class cachedFeedData extends Model
 
         foreach($feeds as $index => $feed) {
             $temp = json_decode($feed['raw_json'], true);
-            $raw_meta = $temp['meta'];
-
-            if(!in_array($raw_meta['provider']['service'], $meta['provider']['service'])) {
-                $meta['provider']['service'][] = $raw_meta['provider']['service'];
-            }
-
-            if(!in_array($raw_meta['provider']['version'], $meta['provider']['version'])) {
-                $meta['provider']['version'][] = $raw_meta['provider']['version'];
-            }
-
-            if(!in_array($raw_meta['response']['format'], $meta['response']['format'])) {
-                $meta['response']['format'][] = $raw_meta['response']['format'];
-            }
-
-            if(!in_array($raw_meta['response']['version'], $meta['response']['version'])) {
-                $meta['response']['version'][] = $raw_meta['response']['version'];
-            }
+            $meta = self::insertMetaData($temp, $meta);
 
             foreach(self::$cities as $key => $city) {
                 foreach($city as $label) {
@@ -181,5 +165,35 @@ class cachedFeedData extends Model
         }
 
         return $r;
+    }
+
+    /**
+     * function used to take the crucial components for the meta header.
+     *
+     * @param  array $feed
+     * @param  array $metaHeader
+     * @return array
+     */
+    public static function insertMetaData($feed, $metaHeader)
+    {
+        $raw_meta = $feed['meta'];
+
+        if(!in_array($raw_meta['provider']['service'], $metaHeader['provider']['service'])) {
+            $metaHeader['provider']['service'][] = $raw_meta['provider']['service'];
+        }
+
+        if(!in_array($raw_meta['provider']['version'], $metaHeader['provider']['version'])) {
+            $metaHeader['provider']['version'][] = $raw_meta['provider']['version'];
+        }
+
+        if(!in_array($raw_meta['response']['format'], $metaHeader['response']['format'])) {
+            $metaHeader['response']['format'][] = $raw_meta['response']['format'];
+        }
+
+        if(!in_array($raw_meta['response']['version'], $metaHeader['response']['version'])) {
+            $metaHeader['response']['version'][] = $raw_meta['response']['version'];
+        }
+
+        return $metaHeader;
     }
 }
