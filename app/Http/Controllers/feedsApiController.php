@@ -68,6 +68,22 @@ class feedsApiController extends Controller
     public function mergeFeeds(Request $request)
     {
         $ids = [];
+        $sort = null;
+
+        if(!empty($request->input('sort-field'))) {
+            $sort['field'] = strtolower($request->input('sort-field'));
+            $sort['direction'] = 'asc';
+
+            if(!empty($request->input('sort-direction'))) {
+                $direction = strtolower($request->input('sort-direction'));
+
+                if($direction != 'asc' && $direction != 'desc') {
+                    throw new \Exception('sort-direction can only be set to asc or desc');
+                }
+
+                $sort['direction'] = $direction;
+            }
+        }
 
         if(!empty($request->input('feed-ids'))) {
             if(preg_match('/[\'^£$%&*()}{@#~?><>|=_+¬-]/', $request->input('feed-ids'))) {
@@ -77,7 +93,7 @@ class feedsApiController extends Controller
             $ids = explode(',', $request->input('feed-ids'));
         }
 
-        $feeds = cachedFeedData::allArray($ids);
+        $feeds = cachedFeedData::allArray($ids, $sort);
 
         return response()->json($feeds, $feeds['meta']['code']);
     }

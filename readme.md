@@ -18,4 +18,6 @@ currently held in the system.
 of all the feeds specified in the `feed-ids` parameter. Ids can be separated
 with a `,` for more than one feed to be merged. Additionally if `feed-ids` is
 not provided then all the existing cached feed data is merged. Feed data is
-separated by city.
+separated by city. The data for the locations can also be ordered using the
+`sort-field` and `sort-direction` parameters, if `sort-direction` isn't set then
+it is defaulted to `asc`.

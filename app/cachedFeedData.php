@@ -29,7 +29,7 @@ class cachedFeedData extends Model
      * @param  array $ids
      * @return array
      */
-    public static function allArray($ids = null)
+    public static function allArray($ids = null, $sort = null)
     {
         if($ids == null) {
             $feeds = cachedFeedData::where('deleted_at', null)->get();
@@ -61,6 +61,11 @@ class cachedFeedData extends Model
                             $locations = array_merge(array_values($output[$key]['locations']), array_values($temp['data']['locations']));
 
                             $output[$key] = self::arrayGlue($output[$key], $temp['data']);
+
+                            if(!empty($sort)) {
+                                $locations = self::sortByField($locations, $sort);
+                            }
+
                             $output[$key]['locations'] = $locations;
                         } else {
                             $output[$key] = $temp['data'];
@@ -195,5 +200,64 @@ class cachedFeedData extends Model
         }
 
         return $metaHeader;
+    }
+
+    /**
+     * used to sort the locations data based on the direction specified in the
+     * sort array.
+     *
+     * @param  array $array
+     * @param  array $sort
+     * @return array
+     */
+    public static function sortByField($array, $sort)
+    {
+        $old_index = null;
+        $total = sizeof($array);
+
+        $noIndex = true;
+
+        foreach($array as $value) {
+            if(isset($value[$sort['field']])) {
+                $noIndex = false;
+                break;
+            }
+        }
+
+        if($noIndex) {
+            throw new \Exception('sort-field can only be set to a field that exists in the locations return of the JSON');
+        }
+
+        // TODO: implement this as a foreach instead of a for loop.
+        for($index = 0; $index < $total; $index++) {
+            $value = $array[$index];
+
+            if(!isset($array[$index - 1])) {
+                continue;
+            }
+
+            switch($sort['direction']) {
+                case 'asc':
+                    if($array[$index - 1][$sort['field']] > $array[$index][$sort['field']]) {
+                        $temp = $array[$index - 1];
+                        $array[$index - 1] = $array[$index];
+                        $array[$index] = $temp;
+
+                        $index = -1;
+                    }
+                    break;
+                case 'desc':
+                    if($array[$index - 1][$sort['field']] < $array[$index][$sort['field']]) {
+                        $temp = $array[$index - 1];
+                        $array[$index - 1] = $array[$index];
+                        $array[$index] = $temp;
+
+                        $index = -1;
+                    }
+                    break;
+            }
+        }
+
+        return $array;
     }
 }
