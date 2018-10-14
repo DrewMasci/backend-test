@@ -38,23 +38,15 @@ class cachedFeedData extends Model
 
         $feeds = $temp;
 
+        $output = [];
+
         if(empty($feeds)) {
-            return ['meta' => ['code' => 204, 'status' => 'failed', 'message' => 'no feeds found'], 'data' => '',];
+            $meta = self::createMetaData(204, 'failed', 'no feeds found');
+            return ['meta' => $meta, 'data' => $output,];
         }
 
-        $meta = [
-            'code' => 200,
-            'status' => 'success',
-            'provider' => [
-                'service' => [],
-                'version' => [],
-            ],
-            'response' => [
-                'format' => [],
-                'version' => [],
-            ]
-        ];
-        $output = [];
+        $meta = self::createMetaData(200, 'success');
+
         foreach($feeds as $index => $feed) {
             $temp = json_decode($feed['raw_json'], true);
             $raw_meta = $temp['meta'];
@@ -150,6 +142,39 @@ class cachedFeedData extends Model
             if($value == null) {
                 unset($r[$index]);
             }
+        }
+
+        return $r;
+    }
+
+    /**
+     * creates the meta header for the merged data.
+     *
+     * @param  int $statusCode
+     * @param  string $statusValue
+     * @param  string $errorMessage optional
+     * @return array
+     */
+    public static function createMetaData($statusCode, $statusValue, $errorMessage = null)
+    {
+        $r = [
+            'code' => $statusCode,
+            'status' => $statusValue,
+            'provider' => [
+                'service' => [],
+                'version' => [],
+            ],
+            'response' => [
+                'format' => [],
+                'version' => [],
+            ],
+        ];
+
+        if($statusCode != 200) {
+            unset($r['provider']);
+            unset($r['response']);
+
+            $r['message'] = $errorMessage;
         }
 
         return $r;
