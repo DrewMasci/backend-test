@@ -70,7 +70,7 @@ class cachedFeedData extends Model
                         if(isset($output[$key])) {
                             $locations = array_merge(array_values($output[$key]['locations']), array_values($temp['data']['locations']));
 
-                            $output[$key] = self::array_glue($output[$key], $temp['data']);
+                            $output[$key] = self::arrayGlue($output[$key], $temp['data']);
                             $output[$key]['locations'] = $locations;
                         } else {
                             $output[$key] = $temp['data'];
@@ -85,7 +85,7 @@ class cachedFeedData extends Model
         return ['meta' => $meta, 'data' => $output,];
     }
 
-    private static function array_glue($destination, $addition) {
+    public static function arrayGlue($destination, $addition) {
         foreach($destination as $key => $value) {
             if(!isset($addition[$key]) || is_numeric($key)) {
                 continue;
@@ -95,7 +95,7 @@ class cachedFeedData extends Model
                 && !in_array($addition[$key], $destination[$key])) {
                 $destination[$key][] = $addition[$key];
             } else if(is_array($value)) {
-                $destination[$key] = self::array_glue($value, $addition[$key]);
+                $destination[$key] = self::arrayGlue($value, $addition[$key]);
             } else if ($value != $addition[$key]) {
                 $destination[$key] = [$value, $addition[$key]];
             }
