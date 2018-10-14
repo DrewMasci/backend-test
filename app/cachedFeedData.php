@@ -93,6 +93,8 @@ class cachedFeedData extends Model
             }
         }
 
+        $output = self::sanitiseArray($output);
+
         return ['meta' => $meta, 'data' => $output,];
     }
 
@@ -127,5 +129,29 @@ class cachedFeedData extends Model
         }
 
         return $destination;
+    }
+
+    /**
+     * sanitiseArray is a static function that is used to remove all null valued
+     * indicies from the array $data.
+     *
+     * @param  array $data
+     * @return array
+     */
+    public static function sanitiseArray($data)
+    {
+        $r = $data;
+
+        foreach($r as $index => $value) {
+            if(is_array($value)){
+                $r[$index] = self::sanitiseArray($value);
+            }
+
+            if($value == null) {
+                unset($r[$index]);
+            }
+        }
+
+        return $r;
     }
 }
