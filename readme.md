@@ -4,11 +4,20 @@
 - run `composer install`.
 - create a copy of `.env.example` and rename it `.env`.
 - set the database details in your `.env` file.
+- run `php artisan key:generate`.
 - run `php artisan migrate`.
 
 ## Using the API
 
-After you have completed the above you can use:
+Once you've completed the above you can turn on your local php server by using
+`php artisan serve` and this will allow you access to the code using:
+
+`http://localhost:8000`
+
+However if you have set your server up differently this may not be needed.
+
+After you have completed the above you can use the following API calls, you may
+need to adapt them to suit your server however:
 
 - `http://localhost/api/add-feed` as either a POST or GET request giving it the
 parameter `feed-url` with the URL of the feed you wish to cache in the system.
